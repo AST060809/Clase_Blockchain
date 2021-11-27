@@ -23,8 +23,8 @@ from flask import Flask, jsonify
 class Blockchain:
     
     def __init__(self): #creando el constructor, el parametro self hace referencia al objeto creado, es como el this en JS
-        self.chain = [] #creando el objeto chain
-        self.create_block(proof = 1, prev_hash = '0')
+        self.chain = [] #creando el objeto chain en una lista vacia
+        self.create_block(proof = 1, prev_hash = '0')# Invocando la funcion crear bloque dentro del contructor, se le pasn los parametros del primer bloque.
         
     def create_block(self, proof, prev_hash):
         block = {
