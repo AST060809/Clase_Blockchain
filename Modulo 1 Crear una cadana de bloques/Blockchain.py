@@ -25,7 +25,7 @@ class Blockchain:
     def __init__(self): #creando el constructor, el parametro self hace referencia al objeto creado, es como el this en JS
         self.chain = [] #creando el objeto chain en una lista vacia
         self.create_block(proof = 1, prev_hash = '0')# Invocando la función crear bloque dentro del constructor, se le pasan los parametros del primer bloque.
-        
+    # Creación da la función crear bloque.    
     def create_block(self, proof, prev_hash):  # la proof en la preuba de trabajo, demostrando que el bloque fue minado. LLamando asi a la funcion despues de haber minado el bloque.
         block = {'index': len(self.chain)+1,
                  'timestamp': str(datetime.datetime.now()), # esto me devuelve la fecha en la que fue minado el bloque. (llamamos a la libreira datatime, con la funcion datetime y el metodo now()), le hago un casting a string ya que lo voy aguardar en formato json.
@@ -34,6 +34,7 @@ class Blockchain:
             }
         self.chain.append(block) #añadimos el bloque a la cadena)
         return block
+    # La función para obtener el bloque previo, es decir el ultimo de la cadena
     def get_prev_block(self):
         return self.chain[-1] # -1 para obtener el ultimo elemento de la cadena, en este caso el hash de la anterior.
     
@@ -50,7 +51,8 @@ class Blockchain:
     
     # Función para dependiendo de un bloque calcular su hash
     def hash (self, block):
-        encoded_block = json.dumps(block, sort_keys= True).encode() # utilizamos esta variable para guardar el volcado de el diccionario a un objeto json. el parametro sort_keys es para ordenar las claves del diccionario.
+         # utilizamos esta variable para guardar el volcado de el diccionario a un objeto json. el parametro sort_keys es para ordenar las claves del diccionario.
+        encoded_block = json.dumps(block, sort_keys= True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
     
     # Función para validar si la cadena es valida
@@ -58,10 +60,11 @@ class Blockchain:
         prev_block = chain[0]
         block_index = 1
         while block_index < len(chain):
-            block = chain[block_index]
-            if block['prev_hash'] != self.hash(prev_block):
+            block = chain[block_index] # le asignamos a block el valor que tiene el bloque en la cadena en ese nomento.
+           #evaluamos la condición si el previo hash del bloque es diferente al hash del bloque anterior, la cadana no es valida.
+            if block['prev_hash'] != self.hash(prev_block): 
                 return False
-            # El valor de la prueba de trabajo del bloqur actual y del previo.
+            # El valor de la prueba de trabajo del bloque actual y del previo.
             prev_proof = prev_block['proof']
             proof = block['proof']
             hash_operation = hashlib.sha256(str(proof**2 - prev_proof**2).encode()).hexdigest()
