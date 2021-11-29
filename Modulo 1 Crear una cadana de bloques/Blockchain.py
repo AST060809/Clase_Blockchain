@@ -75,12 +75,52 @@ class Blockchain:
         return True
     
                 
-                
-
-                    
-     
-    
-    
-
+  
 
 #Parte 2 Minado de un bloque de la Cadena
+
+#Crear una aplicación web
+app  = Flask(__name__)
+
+
+#Crear una Blockchain
+blockchain = Blockchain() #instanciando la clase Blockchain
+
+#Minar un nuevo bloque clase 31
+# paso 1 para minar un bloque es tener la proof of work
+@app.route('/mine_block', methods=['GET'])
+def mine_block():
+    prev_block = blockchain.get_prev_block()
+    prev_proof = prev_block['proof']
+    proof = blockchain.proof_of_work(prev_proof)
+    prev_hash =blockchain.hash(prev_block)
+    block= blockchain.create_block(proof,prev_hash)
+    response = {'message':'Enhorabuena, has minado un nuevo bloque',
+                'index': block['index'],
+                'timestamp': block['timestamp'],
+                'proof':block['proof'],
+                'prev_hash': block['prev_hash']
+                
+        }
+    return jsonify(response), 200
+    
+# Obtener la cadena de bloques al completo
+@app.route('/get_chain', methods=['GET'])
+def get_chain():
+    response ={'chain':blockchain.chain,
+               'length':len(blockchain.chain)}
+    return jsonify(response), 200
+    
+# Ejecutar la app
+app.run(host='0.0.0.0', port=5000)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
