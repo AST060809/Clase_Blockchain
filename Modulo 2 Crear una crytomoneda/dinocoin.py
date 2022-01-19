@@ -21,22 +21,28 @@ from flask import Flask, jsonify, request
 import requests # libreria requests para hacer peticiones 
 from uuid import uuid4
 from urllib.parse import urlparse
+ 
 #Parte 1 Crear la Cadena de Bloques
 
 class Blockchain:
     
     def __init__(self): #creando el constructor, el parametro self hace referencia al objeto creado, es como el this en JS
         self.chain = [] #creando el objeto chain en una lista vacia
+        self.transactions=[] # Creando la lista de transacciones, que se iran guardando hasta crear un nuevo bloque
         self.create_block(proof = 1, prev_hash = '0')# Invocando la función crear bloque dentro del constructor, se le pasan los parametros del primer bloque.
+        self.nodes = set{} # los nodos los creo como un conjunto xq no tendran un orden, como un lista
     # Creación da la función crear bloque.    
     def create_block(self, proof, prev_hash):  # la proof en la preuba de trabajo, demostrando que el bloque fue minado. LLamando asi a la funcion despues de haber minado el bloque.
         block = {'index': len(self.chain)+1,
                  'timestamp': str(datetime.datetime.now()), # esto me devuelve la fecha en la que fue minado el bloque. (llamamos a la libreira datatime, con la funcion datetime y el metodo now()), le hago un casting a string ya que lo voy aguardar en formato json.
                  'proof':proof, # la prueba de trabajo que se creo el bloque.
-                 'prev_hash':prev_hash      
-            }
+                 'prev_hash':prev_hash  
+                 'transaction': self.transactions}
+        self.transactions = [] # despues que minamos el bloque tenemos que vaciar la lista de transacciones.
         self.chain.append(block) #añadimos el bloque a la cadena)
         return block
+    
+    
     # La función para obtener el bloque previo, es decir el ultimo de la cadena
     def get_prev_block(self):
         return self.chain[-1] # -1 para obtener el ultimo elemento de la cadena, en este caso el hash de la anterior.
@@ -78,8 +84,19 @@ class Blockchain:
         return True
     
                 
-  
-
+   def add_transaction(self, sender, receiver, amount):
+           self.transactions.append({'sender':sender,
+                                     'receiver':receiver,
+                                     'amount':amount})
+           prev_block = self.prev_block()
+           return prev_block['index'] + 1
+   #Añadir un nuevo nodo    
+   def add_node(self, address): 
+       # Funcion que procesa direcciones
+       parsed_url = urlparse(address)
+       # de la url parseada solo me quedo con el campo netloc y lo adiciona con add ya que los nodos son un conjunto y no pedomos ussar append con lo usariamos en una lista.
+       self.nodes.add(parsed_url.netloc)
+       
 #Parte 2 Minado de un bloque de la Cadena
 
 #Crear una aplicación web
@@ -123,7 +140,10 @@ def is_valid():
     else:
         response ={'massage':'La Blockcahin no es válida'}
     
-    return jsonify(response), 200   
+    return jsonify(response), 200  
+
+# Parte 3 - Descentralizar la cadena de bloques
+ 
 
 # Ejecutar la app
 app.run(host='0.0.0.0', port=5000)
